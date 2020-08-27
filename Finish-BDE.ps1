@@ -144,4 +144,32 @@ IF ($tpmStatus)
 						}
 						ELSE
 							{
-							Write-Output "NewPIN
+							Write-Output "NewPIN is not long enough to function as NewPassword..."
+							IF ($CompanyIdentifier)
+								{
+									$CompanyIdentifier = $CompanyIdentifier.toUpper()
+									#Add CompanyIdentifier and NewPIN together to make NewPassword
+									$NewPassword = $CompanyIdentifier + $NewPIN
+									#Check that NewPassword is at least 8 chars
+									IF (($NewPassword).length -ge 8)
+										{
+											Write-Output "Successfully created NewPassword!!!"
+											Write-Output "NewPassword is $NewPassword."
+											#OU detection
+											Detect-OU($VerifyOU)
+										}
+										ELSE
+										{
+											Write-Output "NewPassword is not long enough... Value is $NewPassword."
+										}
+								}
+								ELSE
+								{
+									Write-Output "CompanyIdentifier not provided but required to create NewPassword... Exiting..."
+									exit
+								}
+							}
+				}
+		}
+
+
