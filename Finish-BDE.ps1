@@ -95,8 +95,6 @@ IF ($tpmStatus)
 				Write-Output "NewPassword parameter was provided however the asset has an onboard TPM. Aborting."
 				Write-Host -NoNewLine 'Press any key to continue...';
 				$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
-				Write-Host -NoNewLine 'Press any key to continue...';
-				$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 				exit
 			}
 		#If NewPIN is at least 6 chars
