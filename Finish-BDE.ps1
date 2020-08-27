@@ -16,6 +16,11 @@ param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $Company
 
 function Detect-OU {
 
+IF (!$VerifyOU)
+	{
+		return
+	}
+
 #Determine if the AD Module needs installing
 $modules = Get-Module -Name ActiveDirectory
 
