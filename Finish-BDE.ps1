@@ -32,14 +32,26 @@ $modules = Get-Module -Name ActiveDirectory
 		
 		#Get the OU we're currently in
 		#TODO make a try catch here in case we're not connected to the domain
-		$Computer = Get-ADComputer $ComputerName;
+		TRY
+			{
+				$Computer = Get-ADComputer $ComputerName -ErrorAction Stop
+			} CATCH
+				{
+					Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
+					return
+					
+				}
+		#Get the current OU of the AD computer
 		$OU = $Computer.DistinguishedName.SubString($Computer.DistinguishedName.IndexOf('OU='));
 		
 		#Test if the OU we're in at least a child of VerifyOU
 		IF ($OU -match $VerifyOU)
 			{
 				Write-Output "Asset is in a child of the provided OU."
+				Write-Output "Updating Group Policy..."
+				gpupdate
 				$verifiedOU = $true
+				
 				#Write-Output "VerifyOU is $VerifyOU"
 				#Write-Output "OU is $OU"
 			}
@@ -109,6 +121,10 @@ IF ($tpmStatus)
 				#OU detection
 				Detect-OU($VerifyOU)
 			}
+			ELSE
+				{
+					Write-Output "NewPIN is not at least 6 characters in length!!!"
+				}
 		
 		
 	}
