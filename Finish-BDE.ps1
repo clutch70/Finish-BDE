@@ -111,12 +111,10 @@ IF ($tpmStatus)
 		IF ($NewPassword)
 			{
 				Write-Output "NewPassword parameter was provided however the asset has an onboard TPM. Aborting."
-				Write-Host -NoNewLine 'Press any key to continue...';
-				$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 				exit
 			}
 		#If NewPIN is at least 6 chars
-		IF (($NewPin).length -ge 6)
+		IF ($NewPin.length -ge 6)
 			{
 				Write-Output "PIN is at least 6 characters in length."
 				#OU detection
@@ -141,4 +139,9 @@ IF ($tpmStatus)
 					Write-Output "NewPassword not provided..."
 					IF (($NewPIN).length -ge 8)
 						{
-							Write-Output "NewPIN is long enough to take the place of New
+							Write-Output "NewPIN is long enough to take the place of NewPassword... setting them equal."
+							$NewPassword = $NewPIN
+						}
+						ELSE
+							{
+							Write-Output "NewPIN
