@@ -75,6 +75,7 @@ $detectedPIN=($serial.Substring($serial.Length - 6)).ToUpper()
 IF (!$NewPIN)
 	{
 		Write-Output "NewPIN not provided... parsing first PIN from serial number..."
+		Write-Output "Detected Serial Number is $serial."
 		$NewPIN = $detectedPIN
 		Write-Output "NewPIN is $NewPIN"
 	}
