@@ -26,21 +26,25 @@ $modules = Get-Module -Name ActiveDirectory
 		}
 		
 		#Get the OU we're currently in
+		#TODO make a try catch here in case we're not connected to the domain
 		$Computer = Get-ADComputer $ComputerName;
 		$OU = $Computer.DistinguishedName.SubString($Computer.DistinguishedName.IndexOf('OU='));
 		
-		#Test if the OU we're in is at least a child of VerifyOU
+		#Test if the OU we're in at least a child of VerifyOU
 		IF ($OU -match $VerifyOU)
 			{
 				Write-Output "Asset is in a child of the provided OU."
-				Write-Output "VerifyOU is $VerifyOU"
-				Write-Output "OU is $OU"
+				$verifiedOU = $true
+				#Write-Output "VerifyOU is $VerifyOU"
+				#Write-Output "OU is $OU"
 			}
 			ELSE
 			{
 				Write-Output "Asset is NOT in a child of the provided OU!!! Exiting..."
-				Write-Output "VerifyOU is $VerifyOU"
-				Write-Output "OU is $OU"
+				$verifiedOU = $false
+				#Write-Output "VerifyOU is $VerifyOU"
+				#Write-Output "OU is $OU"
+
 			}
 
 
@@ -101,12 +105,14 @@ IF ($tpmStatus)
 		
 		
 	}
+	#If TPM is not present
 	ELSE
 		{
 			Write-Output "No TPM detected... verifying NewPassword..."
 			#If NewPassword doesn't exist, detect the NewPIN value. If longer than 5 chars, prepend CompanyIdentifier.
 			IF (!$NewPassword)
 				{
+					#Just use NewPIN if its long enough
 					Write-Output "NewPassword not provided..."
 					IF (($NewPIN).length -ge 8)
 						{
