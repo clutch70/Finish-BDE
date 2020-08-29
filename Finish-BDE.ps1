@@ -89,7 +89,7 @@ function Apply-BDE
 	{
 		IF ($VerifyOU)
 			{
-				IF (!verifiedOU)
+				IF (!$verifiedOU)
 					{
 						Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
 						return
