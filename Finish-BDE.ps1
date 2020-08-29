@@ -74,7 +74,7 @@ function Detect-OU
 function Apply-BDE 
 	{
 		#BDE Syntax variables
-		$bdeSyntaxBase = "-MountPoint 'C:'"
+		$bdeSyntaxBase = "Enable-BitLocker -MountPoint 'C:'"
 		
 		#If we successfully verifiedOU, add the SilentlyContinue parameter to the first Enable-BitLocker command
 		#This is because the command errors out if GPO requires a RecoveryPassword
@@ -94,6 +94,7 @@ function Apply-BDE
 			$bdeSyntaxBase = $bdeSyntaxBase + " -TPMandPinProtector"
 			#Convert NewPIN to a SecureString
 			$secureString = ConvertTo-SecureString $NewPIN -AsPlainText -Force
+			$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
 			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			Write-Output "NewPIN is $NewPIN."
 			#Enable-BitLocker $bdeSyntaxBase -Pin $secureString
@@ -109,7 +110,7 @@ function Apply-BDE
 			}
 		IF ($CreateRecoveryPassword)
 			{
-				$bdeSyntaxRecoveryBase = "-MountPoint C: -RecoveryPassword"
+				$bdeSyntaxRecoveryBase = "Enable-BitLocker -MountPoint C: -RecoveryPassword"
 				#If NoHardwareTest is true add the SkipHardwareTest paramater
 				IF ($NoHardwareTest)
 					{
