@@ -21,7 +21,7 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $testing=$false)
+param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose -eq $true=$false, $testing=$false)
 
 #Er maybe not We need to set $verifiedOU to something so it can be set as a failure flag is something goes wrong
 #$verifiedOU = $false
@@ -63,12 +63,12 @@ function Detect-OU
 			#Test if the OU we're in at least a child of VerifyOU
 			IF ($OU -match $VerifyOU)
 				{
-					IF ($Verbose)
+					IF ($Verbose -eq $true)
 						{
 							Write-Output "Asset is in a child of the provided OU."
 							Write-Output "Updating Group Policy..."
 						}
-					IF (!$Testing)
+					IF ($Testing -eq $false)
 						{
 							gpupdate
 						}
@@ -100,7 +100,7 @@ function Apply-BDE
 	{
 		IF ($VerifyOU)
 			{
-				IF (!$verifiedOU)
+				IF ($verifiedOU -eq $false)
 					{
 						Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
 						return
@@ -135,7 +135,7 @@ function Apply-BDE
 			#Write-Output "NewPIN is $NewPIN."
 			IF ($RmmTool)
 				{
-					IF (!$Testing)
+					IF ($Testing -eq $false)
 						{
 							Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector | out-null
 						}
@@ -146,7 +146,7 @@ function Apply-BDE
 				}
 				ELSE
 				{
-					IF (!$Testing)
+					IF ($Testing -eq $false)
 						{
 							Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector
 						}
@@ -166,7 +166,7 @@ function Apply-BDE
 			#Enable-BitLocker $bdeSyntaxBase -Password $secureString
 			IF ($RmmTool)
 				{
-					IF (!$Testing)
+					IF ($Testing -eq $false)
 						{
 							Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString | out-null
 						}
@@ -195,7 +195,7 @@ function Apply-BDE
 					{
 						IF ($RmmTool)
 							{
-								IF (!$Testing)
+								IF ($Testing -eq $false)
 									{
 										Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest | out-null
 										return
@@ -207,7 +207,7 @@ function Apply-BDE
 							}
 							ELSE
 							{
-								IF (!$Testing)
+								IF ($Testing -eq $false)
 									{
 										Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest
 									}
@@ -221,7 +221,7 @@ function Apply-BDE
 				#Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
 				IF ($RmmTool)
 					{
-						IF (!$Testing)
+						IF ($Testing -eq $false)
 							{
 								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector | out-null
 							}
@@ -233,7 +233,7 @@ function Apply-BDE
 					}
 					ELSE
 					{
-						IF (!$Testing)
+						IF ($Testing -eq $false)
 							{
 								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
 							}
@@ -252,14 +252,14 @@ $detectedPIN=($serial.Substring($serial.Length - 6)).ToUpper()
 #IF NewPIN not provided detect and set it.
 IF (!$NewPIN)
 	{
-		IF ($Verbose)
+		IF ($Verbose -eq $true)
 			{
 				Write-Output "NewPIN not provided... parsing first PIN from serial number..."
 				Write-Output "Detected Serial Number is $serial."
 			}
 		$NewPIN = $detectedPIN
 		
-		IF ($Verbose)
+		IF ($Verbose -eq $true)
 			{
 				Write-Output "NewPIN is $NewPIN"
 			}
@@ -295,7 +295,7 @@ IF ($tpmStatus)
 	#If TPM is not present
 	ELSE
 		{
-			IF ($Verbose)
+			IF ($Verbose -eq $true)
 				{
 					Write-Output "No TPM detected... verifying NewPassword..."
 				}
@@ -303,13 +303,13 @@ IF ($tpmStatus)
 			IF (!$NewPassword)
 				{
 					#Just use NewPIN if its long enough
-					IF ($Verbose)
+					IF ($Verbose -eq $true)
 						{
 							Write-Output "NewPassword not provided..."
 						}
 					IF (($NewPIN).length -ge 8)
 						{
-							IF ($Verbose)
+							IF ($Verbose -eq $true)
 								{
 									Write-Output "NewPIN is long enough to take the place of NewPassword... setting them equal."
 								}
@@ -317,7 +317,7 @@ IF ($tpmStatus)
 						}
 						ELSE
 							{
-							IF ($Verbose)
+							IF ($Verbose -eq $true)
 								{
 									Write-Output "NewPIN is not long enough to function as NewPassword..."
 								}
@@ -329,7 +329,7 @@ IF ($tpmStatus)
 									#Check that NewPassword is at least 8 chars
 									IF (($NewPassword).length -ge 8)
 										{
-											IF ($Verbose)
+											IF ($Verbose -eq $true)
 												{
 													Write-Output "Successfully created NewPassword!!!"
 													Write-Output "NewPassword is $NewPassword."
