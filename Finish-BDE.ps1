@@ -74,19 +74,21 @@ function Detect-OU
 function Apply-BDE 
 	{
 		#BDE Syntax variables
-		$bdeSyntaxBase = "Enable-BitLocker -MountPoint 'C:'"
-		
+		#$bdeSyntaxBase = "Enable-BitLocker -MountPoint 'C:'"
+		$bdeMountPoint = 'C:'
+		$bdeErrorAction = "Stop"
+		#$bde
 		#If we successfully verifiedOU, add the SilentlyContinue parameter to the first Enable-BitLocker command
 		#This is because the command errors out if GPO requires a RecoveryPassword
 		IF ($verifiedOU)
 			{
-				$bdeSyntaxBase = $bdeSyntaxBase + " -ErrorAction SilentlyContinue"
+				$bdeErrorAction =  "SilentlyContinue"
 			}
-		
-		IF ($NoHardwareTest)
-			{
-				$bdeSyntaxBase = $bdeSyntaxBase + " -SkipHardwareTest"
-			}
+		#Here lies a bug, if a recovery password is not required but the SkipHardwareTest paramater is true, SkipHardwareTest will not be honored
+		#IF ($NoHardwareTest)
+		#	{
+		#		$bdeSyntaxBase = $bdeSyntaxBase + " -SkipHardwareTest"
+		#	}
 		
 		#If the TPM exists use NewPIN and TPMandPinProtector parameters
 		IF ($tpmStatus)
@@ -97,7 +99,7 @@ function Apply-BDE
 			#$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
 			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			Write-Output "NewPIN is $NewPIN."
-			Enable-BitLocker -Pin $secureString "$bdeSyntaxBase"
+			Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector -ErrorAction $bdeErrorAction
 		} 
 		ELSE
 			{
