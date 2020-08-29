@@ -97,7 +97,7 @@ function Apply-BDE
 			$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
 			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			Write-Output "NewPIN is $NewPIN."
-			#Enable-BitLocker $bdeSyntaxBase -Pin $secureString
+			Enable-BitLocker -Pin $secureString "$bdeSyntaxBase"
 		} 
 		ELSE
 			{
