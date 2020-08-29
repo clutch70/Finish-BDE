@@ -133,7 +133,7 @@ function Apply-BDE
 			#$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
 			#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			#Write-Output "NewPIN is $NewPIN."
-			IF ($RmmTool)
+			IF ($RmmTool -eq $true)
 				{
 					IF ($Testing -eq $false)
 						{
@@ -164,7 +164,7 @@ function Apply-BDE
 			#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			#Write-Output "NewPassword is $NewPassword."
 			#Enable-BitLocker $bdeSyntaxBase -Password $secureString
-			IF ($RmmTool)
+			IF ($RmmTool -eq $true)
 				{
 					IF ($Testing -eq $false)
 						{
@@ -193,7 +193,7 @@ function Apply-BDE
 				#If NoHardwareTest is true add the SkipHardwareTest paramater
 				IF ($NoHardwareTest)
 					{
-						IF ($RmmTool)
+						IF ($RmmTool -eq $true)
 							{
 								IF ($Testing -eq $false)
 									{
@@ -219,7 +219,7 @@ function Apply-BDE
 					}
 				
 				#Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
-				IF ($RmmTool)
+				IF ($RmmTool -eq $true)
 					{
 						IF ($Testing -eq $false)
 							{
