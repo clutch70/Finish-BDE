@@ -31,7 +31,7 @@ param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $Company
 function Detect-OU 
 	{
 
-	IF (!$VerifyOU)
+	IF ($verifiedOU -eq $false)
 		{
 			return
 		}
