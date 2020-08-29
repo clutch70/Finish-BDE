@@ -52,7 +52,7 @@ function Detect-OU
 				{
 					Write-Output "Asset is in a child of the provided OU."
 					Write-Output "Updating Group Policy..."
-					gpupdate
+					#gpupdate
 					$verifiedOU = $true
 					
 					#Write-Output "VerifyOU is $VerifyOU"
@@ -99,7 +99,7 @@ function Apply-BDE
 			#$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
 			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			Write-Output "NewPIN is $NewPIN."
-			Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector -ErrorAction $bdeErrorAction
+			Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector #-ErrorAction $bdeErrorAction
 		} 
 		ELSE
 			{
@@ -116,7 +116,7 @@ function Apply-BDE
 				#If NoHardwareTest is true add the SkipHardwareTest paramater
 				IF ($NoHardwareTest)
 					{
-						Enable-BitLocker -MountPoint "C:" -RecoveryPassword -SkipHardwareTest
+						Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest
 						return
 					}
 				
