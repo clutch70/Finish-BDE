@@ -121,7 +121,7 @@ function Apply-BDE
 					}
 				
 				#Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
-				Enable-BitLocker -MountPoint "C:" -RecoveryPassword
+				Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
 			}
 	}
 
