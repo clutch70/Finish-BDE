@@ -120,7 +120,7 @@ function Apply-BDE
 				{
 					IF ($Testing -eq $false)
 						{
-							Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector | out-null
+							Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector -ErrorAction SilentlyContinue
 						}
 						ELSE
 						{
@@ -151,7 +151,7 @@ function Apply-BDE
 					{
 						IF ($Testing -eq $false)
 							{
-								Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString | out-null
+								Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 							}
 							ELSE
 							{
@@ -181,7 +181,7 @@ function Apply-BDE
 							{
 								IF ($Testing -eq $false)
 									{
-										Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest | out-null
+										Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 										return
 									}
 									ELSE
@@ -208,7 +208,7 @@ function Apply-BDE
 								{
 									IF ($Testing -eq $false)
 										{
-											Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector | out-null
+											Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 										}
 										ELSE
 										{
