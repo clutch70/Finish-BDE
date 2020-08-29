@@ -83,7 +83,7 @@ function Apply-BDE
 				$bdeSyntaxBase = $bdeSyntaxBase + " -ErrorAction SilentlyContinue"
 			}
 		
-		IF ($NoHardwareTest)
+		IF (!$NoHardwareTest)
 			{
 				$bdeSyntaxBase = $bdeSyntaxBase + " -SkipHardwareTest"
 			}
