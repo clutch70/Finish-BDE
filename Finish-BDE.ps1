@@ -49,7 +49,7 @@ function Detect-OU
 			#TODO make a try catch here in case we're not connected to the domain
 			TRY
 				{
-					$Computer = Get-ADComputer $env:computername #-ErrorAction Stop
+					$Computer = Get-ADComputer $env:computername -ErrorAction Stop
 				} CATCH
 					{
 						Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
@@ -63,9 +63,19 @@ function Detect-OU
 			#Test if the OU we're in at least a child of VerifyOU
 			IF ($OU -match $VerifyOU)
 				{
-					#Write-Output "Asset is in a child of the provided OU."
-					#Write-Output "Updating Group Policy..."
-					gpupdate
+					IF ($Verbose)
+						{
+							Write-Output "Asset is in a child of the provided OU."
+							Write-Output "Updating Group Policy..."
+						}
+					IF (!$Testing)
+						{
+							gpupdate
+						}
+						ELSE
+						{
+							Write-Output "Would execute gpupdate here, but that takes forever and the testing flag is set."
+						}
 					$verifiedOU = $true
 					
 					#Write-Output "VerifyOU is $VerifyOU"
