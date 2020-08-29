@@ -112,15 +112,16 @@ function Apply-BDE
 			}
 		IF ($CreateRecoveryPassword)
 			{
-				$bdeSyntaxRecoveryBase = "Enable-BitLocker -MountPoint C: -RecoveryPassword"
+				#$bdeSyntaxRecoveryBase = "Enable-BitLocker -MountPoint C: -RecoveryPassword"
 				#If NoHardwareTest is true add the SkipHardwareTest paramater
 				IF ($NoHardwareTest)
 					{
-						$bdeSyntaxRecoveryBase = $bdeSyntaxRecoveryBase + " -SkipHardwareTest"
+						Enable-BitLocker -MountPoint "C:" -RecoveryPassword -SkipHardwareTest
+						return
 					}
 				
-				Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
-				#Enable-BitLocker $bdeSyntaxRecoveryBase
+				#Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
+				Enable-BitLocker -MountPoint "C:" -RecoveryPassword
 			}
 	}
 
@@ -207,4 +208,4 @@ IF ($tpmStatus)
 		}
 #OU detection
 Detect-OU($VerifyOU)
-Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword)
+Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest)
