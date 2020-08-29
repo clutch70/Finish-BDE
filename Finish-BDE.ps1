@@ -120,7 +120,7 @@ function Apply-BDE
 				{
 					IF ($Testing -eq $false)
 						{
-							Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector -ErrorAction SilentlyContinue
+							$bdeCommand = Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector -ErrorAction SilentlyContinue
 						}
 						ELSE
 						{
@@ -131,7 +131,7 @@ function Apply-BDE
 				{
 					IF ($Testing -eq $false)
 						{
-							Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector
+							$bdeCommand = Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector
 						}
 						ELSE
 						{
@@ -146,12 +146,12 @@ function Apply-BDE
 				$secureString = ConvertTo-SecureString $NewPassword -AsPlainText -Force
 				#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 				#Write-Output "NewPassword is $NewPassword."
-				#Enable-BitLocker $bdeSyntaxBase -Password $secureString
+				#$bdeCommand = Enable-BitLocker $bdeSyntaxBase -Password $secureString
 				IF ($RmmTool -eq $true)
 					{
 						IF ($Testing -eq $false)
 							{
-								Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | out-null
+								$bdeCommand = Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | out-null
 							}
 							ELSE
 							{
@@ -162,7 +162,7 @@ function Apply-BDE
 					{
 						IF ($Testing -eq $false)
 							{
-								Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
+								$bdeCommand = Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
 							}
 							ELSE
 							{
@@ -172,7 +172,7 @@ function Apply-BDE
 			}
 		IF ($CreateRecoveryPassword -eq $true)
 			{
-				#$bdeSyntaxRecoveryBase = "Enable-BitLocker -MountPoint C: -RecoveryPassword"
+				#$bdeSyntaxRecoveryBase = "$bdeCommand = Enable-BitLocker -MountPoint C: -RecoveryPassword"
 				#If NoHardwareTest is true add the SkipHardwareTest paramater
 				IF ($NoHardwareTest -eq $true)
 					{
@@ -181,7 +181,7 @@ function Apply-BDE
 							{
 								IF ($Testing -eq $false)
 									{
-										Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | out-null
+										$bdeCommand = Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | out-null
 										return
 									}
 									ELSE
@@ -193,7 +193,8 @@ function Apply-BDE
 							{
 								IF ($Testing -eq $false)
 									{
-										Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest
+										$bdeCommand = Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest
+										return
 									}
 									ELSE
 									{
@@ -208,7 +209,8 @@ function Apply-BDE
 								{
 									IF ($Testing -eq $false)
 										{
-											Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | out-null
+											$bdeCommand = Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | out-null
+											return
 										}
 										ELSE
 										{
@@ -219,7 +221,8 @@ function Apply-BDE
 								{
 									IF ($Testing -eq $false)
 										{
-											Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
+											$bdeCommand = Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
+											return
 										}
 										ELSE
 										{
