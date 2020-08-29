@@ -23,9 +23,6 @@
 
 param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $testing=$false, $DisplayCredential)
 
-#Er maybe not We need to set $verifiedOU to something so it can be set as a failure flag is something goes wrong
-#$verifiedOU = $false
-
 #This function accepts an OU in Distinguished Name format and verifies whether
 #the computer is currently a member of the provided OU.
 function Detect-OU 
