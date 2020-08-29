@@ -21,7 +21,7 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose -eq $true=$false, $testing=$false)
+param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $testing=$false)
 
 #Er maybe not We need to set $verifiedOU to something so it can be set as a failure flag is something goes wrong
 #$verifiedOU = $false
