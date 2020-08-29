@@ -21,7 +21,7 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false)
+param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $testing=$false)
 
 #We need to set $verifiedOU to something so it can be set as a failure flag is something goes wrong
 $verifiedOU = 1
@@ -114,7 +114,28 @@ function Apply-BDE
 			#$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
 			#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			#Write-Output "NewPIN is $NewPIN."
-			Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector #-ErrorAction $bdeErrorAction
+			IF ($RmmTool)
+				{
+					IF (!$Testing)
+						{
+							Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector | out-null
+						}
+						ELSE
+						{
+							Write-Output "Would execute a TPMandPinProtector Enable-BitLocker command in RMM Mode here but the Testing flag is set."
+						}
+				}
+				ELSE
+				{
+					IF (!$Testing)
+						{
+							Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector
+						}
+						ELSE
+						{
+							Write-Output "Would execute a TPMandPinProtector Enable-BitLocker command here but the Testing flag is set."
+						}
+				}
 		} 
 		ELSE
 			{
@@ -126,11 +147,25 @@ function Apply-BDE
 			#Enable-BitLocker $bdeSyntaxBase -Password $secureString
 			IF ($RmmTool)
 				{
-					Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString | out-null
+					IF (!$Testing)
+						{
+							Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString | out-null
+						}
+						ELSE
+						{
+							Write-Output "Would execute a PasswordProtector Enable-BitLocker command in RMM Mode here but the Testing flag is set."
+						}
 				}
 				ELSE
 				{
-					Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
+					IF (!Testing)
+						{
+							Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
+						}
+						ELSE
+						{
+							Write-Output "Would execute a PasswordProtector Enable-BitLocker command here but the Testing flag is set."
+						}
 				}
 			}
 		IF ($CreateRecoveryPassword)
