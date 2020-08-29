@@ -37,7 +37,7 @@ function Detect-OU
 			#TODO make a try catch here in case we're not connected to the domain
 			TRY
 				{
-					$Computer = Get-ADComputer $env:computername -ErrorAction Stop
+					$Computer = Get-ADComputer $env:computername #-ErrorAction Stop
 				} CATCH
 					{
 						Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
