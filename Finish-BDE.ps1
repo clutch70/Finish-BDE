@@ -11,61 +11,113 @@
 #Min 6 char, used when TPM is available. Generally, use the last 6 chars
 #of the serial number in all caps. 
 #TODOif serial is not long enough, prepend the Client Identifier.
-param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier)
+param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest)
 
 
-function Detect-OU {
-
-IF (!$VerifyOU)
+#This function accepts an OU in Distinguished Name format and verifies whether
+#the computer is currently a member of the provided OU.
+function Detect-OU 
 	{
-		return
-	}
 
-#Determine if the AD Module needs installing
-$modules = Get-Module -Name ActiveDirectory
-
-#If not exist install it
-	IF (!$modules)
+	IF (!$VerifyOU)
 		{
-			Import-Module -Name ActiveDirectory -Cmdlet Get-ADComputer, Get-ADOrganizationalUnit;
+			return
 		}
-		
-		#Get the OU we're currently in
-		#TODO make a try catch here in case we're not connected to the domain
-		TRY
+
+	#Determine if the AD Module needs installing
+	$modules = Get-Module -Name ActiveDirectory
+
+	#If not exist install it
+		IF (!$modules)
 			{
-				$Computer = Get-ADComputer $ComputerName -ErrorAction Stop
-			} CATCH
+				Import-Module -Name ActiveDirectory -Cmdlet Get-ADComputer, Get-ADOrganizationalUnit;
+			}
+			
+			#Get the OU we're currently in
+			#TODO make a try catch here in case we're not connected to the domain
+			TRY
 				{
-					Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
-					return
+					$Computer = Get-ADComputer $env:computername -ErrorAction Stop
+				} CATCH
+					{
+						Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
+						return
+						
+					}
+			#Get the current OU of the AD computer
+			$OU = $Computer.DistinguishedName.SubString($Computer.DistinguishedName.IndexOf('OU='));
+			
+			#Test if the OU we're in at least a child of VerifyOU
+			IF ($OU -match $VerifyOU)
+				{
+					Write-Output "Asset is in a child of the provided OU."
+					Write-Output "Updating Group Policy..."
+					gpupdate
+					$verifiedOU = $true
 					
+					#Write-Output "VerifyOU is $VerifyOU"
+					#Write-Output "OU is $OU"
 				}
-		#Get the current OU of the AD computer
-		$OU = $Computer.DistinguishedName.SubString($Computer.DistinguishedName.IndexOf('OU='));
+				ELSE
+				{
+					Write-Output "Asset is NOT in a child of the provided OU!!! Exiting..."
+					$verifiedOU = $false
+					Write-Output "VerifyOU is $VerifyOU"
+					Write-Output "OU is $OU"
+
+				}
+	}
+	
+
+#This function should be called after all prerequisites have been completed.
+#It executes the BitLocker encryption process on the C: drive.
+function Apply-BDE 
+	{
+		#BDE Syntax variables
+		$bdeSyntaxBase = "-MountPoint 'C:'"
 		
-		#Test if the OU we're in at least a child of VerifyOU
-		IF ($OU -match $VerifyOU)
+		#If we successfully verifiedOU, add the SilentlyContinue parameter to the first Enable-BitLocker command
+		#This is because the command errors out if GPO requires a RecoveryPassword
+		IF ($verifiedOU)
 			{
-				Write-Output "Asset is in a child of the provided OU."
-				Write-Output "Updating Group Policy..."
-				gpupdate
-				$verifiedOU = $true
+				$bdeSyntaxBase = $bdeSyntaxBase + " -ErrorAction SilentlyContinue"
+			}
+		
+		IF ($NoHardwareTest)
+			{
+				$bdeSyntaxBase = $bdeSyntaxBase + " -SkipHardwareTest"
+			}
+		
+		#If the TPM exists use NewPIN and TPMandPinProtector parameters
+		IF ($tpmStatus)
+		{
+			$bdeSyntaxBase = $bdeSyntaxBase + " -TPMandPinProtector"
+			#Convert NewPIN to a SecureString
+			$secureString = ConvertTo-SecureString $NewPIN -AsPlainText -Force
+			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
+			#Enable-BitLocker $bdeSyntaxBase -Pin $secureString
+		} 
+		ELSE
+			{
+			$bdeSyntaxBase = $bdeSyntaxBase + " -PasswordProtector"
+			#Convert NewPassword to a SecureString
+			$secureString = ConvertTo-SecureString $NewPassword -AsPlainText -Force
+			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
+			#Enable-BitLocker $bdeSyntaxBase -Password $secureString
+			}
+		IF ($CreateRecoveryPassword)
+			{
+				$bdeSyntaxRecoveryBase = "-MountPoint C: -RecoveryPassword"
+				#If NoHardwareTest is true add the SkipHardwareTest paramater
+				IF ($NoHardwareTest)
+					{
+						$bdeSyntaxRecoveryBase = $bdeSyntaxRecoveryBase + " -SkipHardwareTest"
+					}
 				
-				#Write-Output "VerifyOU is $VerifyOU"
-				#Write-Output "OU is $OU"
+				Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
+				#Enable-BitLocker $bdeSyntaxRecoveryBase
 			}
-			ELSE
-			{
-				Write-Output "Asset is NOT in a child of the provided OU!!! Exiting..."
-				$verifiedOU = $false
-				#Write-Output "VerifyOU is $VerifyOU"
-				#Write-Output "OU is $OU"
-
-			}
-
-
-}
+	}
 
 #Get the serial number
 $serial = (Get-CimInstance win32_bios).SerialNumber
@@ -79,25 +131,6 @@ IF (!$NewPIN)
 		$NewPIN = $detectedPIN
 		Write-Output "NewPIN is $NewPIN"
 	}
-
-
-
-
-#Min 8 chars, used when no TPM is available. Generally, use last 8 chars 
-#of the serial number. If serial is not long enough, prepend the Client
-#Identifier.
-#param ($NewPassword)
-
-
-#Should be the DN of a parent OU we want the asset to be in before
-#proceeding. Useful for ensuring GP is applied at time of encryption.
-#param ($VerifyOU)
-
-
-#Should be a Boolean instructing the script whether or not to add a 
-#RecoveryPassword protector to the protected volume.
-#param ($CreateRecoveryPassword=$true)
-
 
 
 #Determine whether the TPM exists
@@ -117,8 +150,6 @@ IF ($tpmStatus)
 		IF ($NewPin.length -ge 6)
 			{
 				Write-Output "PIN is at least 6 characters in length."
-				#OU detection
-				Detect-OU($VerifyOU)
 			}
 			ELSE
 				{
@@ -155,8 +186,6 @@ IF ($tpmStatus)
 										{
 											Write-Output "Successfully created NewPassword!!!"
 											Write-Output "NewPassword is $NewPassword."
-											#OU detection
-											Detect-OU($VerifyOU)
 										}
 										ELSE
 										{
@@ -171,5 +200,6 @@ IF ($tpmStatus)
 							}
 				}
 		}
-
-
+#OU detection
+Detect-OU($VerifyOU)
+Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword)
