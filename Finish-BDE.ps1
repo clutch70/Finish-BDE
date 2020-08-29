@@ -77,6 +77,7 @@ function Detect-OU
 							Write-Output "Would execute gpupdate here, but that takes forever and the testing flag is set."
 						}
 					$verifiedOU = $true
+					return($verifiedOU)
 					
 					#Write-Output "VerifyOU is $VerifyOU"
 					#Write-Output "OU is $OU"
@@ -87,7 +88,7 @@ function Detect-OU
 					$verifiedOU = $false
 					#Write-Output "VerifyOU is $VerifyOU"
 					#Write-Output "OU is $OU"
-					return
+					return($verifiedOU)
 
 				}
 	}
