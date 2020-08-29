@@ -95,6 +95,7 @@ function Apply-BDE
 			#Convert NewPIN to a SecureString
 			$secureString = ConvertTo-SecureString $NewPIN -AsPlainText -Force
 			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
+			Write-Output "NewPIN is $NewPIN."
 			#Enable-BitLocker $bdeSyntaxBase -Pin $secureString
 		} 
 		ELSE
@@ -103,6 +104,7 @@ function Apply-BDE
 			#Convert NewPassword to a SecureString
 			$secureString = ConvertTo-SecureString $NewPassword -AsPlainText -Force
 			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
+			Write-Output "NewPassword is $NewPassword."
 			#Enable-BitLocker $bdeSyntaxBase -Password $secureString
 			}
 		IF ($CreateRecoveryPassword)
