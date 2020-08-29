@@ -52,7 +52,7 @@ function Detect-OU
 				{
 					Write-Output "Asset is in a child of the provided OU."
 					Write-Output "Updating Group Policy..."
-					#gpupdate
+					gpupdate
 					$verifiedOU = $true
 					
 					#Write-Output "VerifyOU is $VerifyOU"
