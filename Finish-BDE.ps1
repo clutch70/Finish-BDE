@@ -94,7 +94,7 @@ function Apply-BDE
 			$bdeSyntaxBase = $bdeSyntaxBase + " -TPMandPinProtector"
 			#Convert NewPIN to a SecureString
 			$secureString = ConvertTo-SecureString $NewPIN -AsPlainText -Force
-			$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
+			#$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
 			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			Write-Output "NewPIN is $NewPIN."
 			Enable-BitLocker -Pin $secureString "$bdeSyntaxBase"
