@@ -341,7 +341,14 @@ IF ($tpmStatus)
 #OU detection
 Detect-OU($VerifyOU)
 
-IF ($verifiedOU -eq $true)
+IF ($VerifyOU)
+	{
+	IF ($verifiedOU -eq $true)
+		{
+			Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing)
+		}
+	}
+	ELSE
 	{
 		Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing)
 	}
