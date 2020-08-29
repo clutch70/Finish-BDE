@@ -1,18 +1,30 @@
-#########################################################################
-#																		#
-#	Script Title: Finish-BDE											#
-#	Author: Brennan Custard												#
-#	Date: 8/26/2020														#
-#	Description: This script accepts basic parameters to complete		#
-#	the BDE process for a given OS disk in an endpoint.			 		#
-#																		#
-#########################################################################
+########################################################################
+#																		
+#	Script Title: Finish-BDE											
+#	Author: Brennan Custard												
+#	Date: 8/26/2020														
+#	Description: This script accepts basic parameters to complete		
+#	the BDE process for a given OS disk in an endpoint.			 		
+#																		
+########################################################################
+#
+#	This script makes several assumptions.
+#		1. The password or PIN must be 8 or 6 characters respectively.
+#		2. If NewPIN is not specified, you want to use the last 6 of the 
+#			serial number (all caps) as	the first PIN.
+#		3. If NewPassword is not specified, you want to use a provided 
+#			CompanyIdentifier paramater plus the last 6 of the serial
+#			number (all caps) as the first password.
+#		4. By default a RecoveryPasswordProtector should be added.
+#		5. By default a hardware test will be performed before encryption
+#
+########################################################################
 
-#Min 6 char, used when TPM is available. Generally, use the last 6 chars
-#of the serial number in all caps. 
-#TODOif serial is not long enough, prepend the Client Identifier.
+
 param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest)
 
+#We need to set $verifiedOU to something so it can be set as a failure flag is something goes wrong
+$verifiedOU = 1
 
 #This function accepts an OU in Distinguished Name format and verifies whether
 #the computer is currently a member of the provided OU.
@@ -50,8 +62,8 @@ function Detect-OU
 			#Test if the OU we're in at least a child of VerifyOU
 			IF ($OU -match $VerifyOU)
 				{
-					Write-Output "Asset is in a child of the provided OU."
-					Write-Output "Updating Group Policy..."
+					#Write-Output "Asset is in a child of the provided OU."
+					#Write-Output "Updating Group Policy..."
 					gpupdate
 					$verifiedOU = $true
 					
@@ -62,8 +74,8 @@ function Detect-OU
 				{
 					Write-Output "Asset is NOT in a child of the provided OU!!! Exiting..."
 					$verifiedOU = $false
-					Write-Output "VerifyOU is $VerifyOU"
-					Write-Output "OU is $OU"
+					#Write-Output "VerifyOU is $VerifyOU"
+					#Write-Output "OU is $OU"
 
 				}
 	}
@@ -80,10 +92,11 @@ function Apply-BDE
 		#$bde
 		#If we successfully verifiedOU, add the SilentlyContinue parameter to the first Enable-BitLocker command
 		#This is because the command errors out if GPO requires a RecoveryPassword
-		IF ($verifiedOU)
+		IF (!$verifiedOU)
 			{
-				$bdeErrorAction =  "SilentlyContinue"
-			}
+				Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
+				return
+			} 
 		#Here lies a bug, if a recovery password is not required but the SkipHardwareTest paramater is true, SkipHardwareTest will not be honored
 		#IF ($NoHardwareTest)
 		#	{
@@ -97,8 +110,8 @@ function Apply-BDE
 			#Convert NewPIN to a SecureString
 			$secureString = ConvertTo-SecureString $NewPIN -AsPlainText -Force
 			#$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
-			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
-			Write-Output "NewPIN is $NewPIN."
+			#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
+			#Write-Output "NewPIN is $NewPIN."
 			Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector #-ErrorAction $bdeErrorAction
 		} 
 		ELSE
@@ -106,8 +119,8 @@ function Apply-BDE
 			$bdeSyntaxBase = $bdeSyntaxBase + " -PasswordProtector"
 			#Convert NewPassword to a SecureString
 			$secureString = ConvertTo-SecureString $NewPassword -AsPlainText -Force
-			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
-			Write-Output "NewPassword is $NewPassword."
+			#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
+			#Write-Output "NewPassword is $NewPassword."
 			#Enable-BitLocker $bdeSyntaxBase -Password $secureString
 			Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
 			}
@@ -156,7 +169,7 @@ IF ($tpmStatus)
 		#If NewPIN is at least 6 chars
 		IF ($NewPin.length -ge 6)
 			{
-				Write-Output "PIN is at least 6 characters in length."
+				#Write-Output "PIN is at least 6 characters in length."
 			}
 			ELSE
 				{
