@@ -109,6 +109,7 @@ function Apply-BDE
 			Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			Write-Output "NewPassword is $NewPassword."
 			#Enable-BitLocker $bdeSyntaxBase -Password $secureString
+			Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
 			}
 		IF ($CreateRecoveryPassword)
 			{
