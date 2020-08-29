@@ -184,23 +184,52 @@ function Apply-BDE
 					{
 						IF ($RmmTool)
 							{
-								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest | out-null
-								return
+								IF (!$Testing)
+									{
+										Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest | out-null
+										return
+									}
+									ELSE
+									{
+										Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command in RMM Mode here, but the Testing flag is set."
+									}
 							}
 							ELSE
 							{
-								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest
+								IF (!$Testing)
+									{
+										Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest
+									}
+									ELSE
+									{
+										Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command here, but the Testing flag is set."
+									}
 							}
 					}
 				
 				#Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
 				IF ($RmmTool)
 					{
-						Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector | out-null
+						IF (!$Testing)
+							{
+								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector | out-null
+							}
+							ELSE
+							{
+								Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command in RMM Mode here, but the Testing flag is set."
+							}
+							
 					}
 					ELSE
 					{
-						Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
+						IF (!$Testing)
+							{
+								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
+							}
+							ELSE
+							{
+								Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command here, but the Testing flag is set."
+							}
 					}
 			}
 	}
