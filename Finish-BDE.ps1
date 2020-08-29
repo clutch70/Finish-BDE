@@ -54,7 +54,7 @@ function Detect-OU
 					{
 						Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
 						$verifiedOU = $false
-						return
+						return($verifiedOU)
 						
 					}
 			#Get the current OU of the AD computer
