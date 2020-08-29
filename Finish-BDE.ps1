@@ -106,23 +106,7 @@ function Apply-BDE
 						return
 					}
 			}
-		#BDE Syntax variables
-		#$bdeSyntaxBase = "Enable-BitLocker -MountPoint 'C:'"
-		$bdeMountPoint = 'C:'
-		$bdeErrorAction = "Stop"
-		#$bde
-		#If we successfully verifiedOU, add the SilentlyContinue parameter to the first Enable-BitLocker command
-		#This is because the command errors out if GPO requires a RecoveryPassword
-		#IF (!$verifiedOU)
-		#	{
-		#		Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
-		#		return
-		#	} 
-		#Here lies a bug, if a recovery password is not required but the SkipHardwareTest paramater is true, SkipHardwareTest will not be honored
-		#IF ($NoHardwareTest)
-		#	{
-		#		$bdeSyntaxBase = $bdeSyntaxBase + " -SkipHardwareTest"
-		#	}
+		
 		
 		#If the TPM exists use NewPIN and TPMandPinProtector parameters
 		IF ($tpmStatus)
@@ -158,41 +142,42 @@ function Apply-BDE
 		} 
 		ELSE
 			{
-			#$bdeSyntaxBase = $bdeSyntaxBase + " -PasswordProtector"
-			#Convert NewPassword to a SecureString
-			$secureString = ConvertTo-SecureString $NewPassword -AsPlainText -Force
-			#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
-			#Write-Output "NewPassword is $NewPassword."
-			#Enable-BitLocker $bdeSyntaxBase -Password $secureString
-			IF ($RmmTool -eq $true)
-				{
-					IF ($Testing -eq $false)
-						{
-							Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString | out-null
-						}
-						ELSE
-						{
-							Write-Output "Would execute a PasswordProtector Enable-BitLocker command in RMM Mode here but the Testing flag is set."
-						}
-				}
-				ELSE
-				{
-					IF ($Testing -eq $false)
-						{
-							Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
-						}
-						ELSE
-						{
-							Write-Output "Would execute a PasswordProtector Enable-BitLocker command here but the Testing flag is set."
-						}
-				}
+				#$bdeSyntaxBase = $bdeSyntaxBase + " -PasswordProtector"
+				#Convert NewPassword to a SecureString
+				$secureString = ConvertTo-SecureString $NewPassword -AsPlainText -Force
+				#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
+				#Write-Output "NewPassword is $NewPassword."
+				#Enable-BitLocker $bdeSyntaxBase -Password $secureString
+				IF ($RmmTool -eq $true)
+					{
+						IF ($Testing -eq $false)
+							{
+								Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString | out-null
+							}
+							ELSE
+							{
+								Write-Output "Would execute a PasswordProtector Enable-BitLocker command in RMM Mode here but the Testing flag is set."
+							}
+					}
+					ELSE
+					{
+						IF ($Testing -eq $false)
+							{
+								Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
+							}
+							ELSE
+							{
+								Write-Output "Would execute a PasswordProtector Enable-BitLocker command here but the Testing flag is set."
+							}
+					}
 			}
-		IF ($CreateRecoveryPassword)
+		IF ($CreateRecoveryPassword -eq $true)
 			{
 				#$bdeSyntaxRecoveryBase = "Enable-BitLocker -MountPoint C: -RecoveryPassword"
 				#If NoHardwareTest is true add the SkipHardwareTest paramater
 				IF ($NoHardwareTest -eq $true)
 					{
+
 						IF ($RmmTool -eq $true)
 							{
 								IF ($Testing -eq $false)
@@ -217,31 +202,36 @@ function Apply-BDE
 									}
 							}
 					}
-				
-				#Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
-				IF ($RmmTool -eq $true)
-					{
-						IF ($Testing -eq $false)
-							{
-								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector | out-null
-							}
-							ELSE
-							{
-								Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command in RMM Mode here, but the Testing flag is set."
-							}
-							
-					}
 					ELSE
-					{
-						IF ($Testing -eq $false)
-							{
-								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
-							}
-							ELSE
-							{
-								Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command here, but the Testing flag is set."
-							}
-					}
+						{
+							#Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
+							IF ($RmmTool -eq $true)
+								{
+									IF ($Testing -eq $false)
+										{
+											Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector | out-null
+										}
+										ELSE
+										{
+											Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command in RMM Mode here, but the Testing flag is set."
+										}
+								}
+								ELSE
+								{
+									IF ($Testing -eq $false)
+										{
+											Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
+										}
+										ELSE
+										{
+											Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command here, but the Testing flag is set."
+										}
+									
+								}
+								
+								
+						
+						}
 			}
 	}
 
