@@ -31,7 +31,7 @@ param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $Company
 function Detect-OU 
 	{
 
-	IF ($verifiedOU -eq $false)
+	IF (!$VerifyOU)
 		{
 			return
 		}
@@ -98,14 +98,13 @@ function Detect-OU
 #It executes the BitLocker encryption process on the C: drive.
 function Apply-BDE 
 	{
-		IF ($VerifyOU)
+		
+		IF ($verifiedOU -eq $false)
 			{
-				IF ($verifiedOU -eq $false)
-					{
-						Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
-						return
-					}
+				Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
+				return
 			}
+			
 		
 		
 		#If the TPM exists use NewPIN and TPMandPinProtector parameters
