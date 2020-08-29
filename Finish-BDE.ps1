@@ -24,7 +24,7 @@
 param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $testing=$false)
 
 #We need to set $verifiedOU to something so it can be set as a failure flag is something goes wrong
-$verifiedOU = 1
+$verifiedOU = $false
 
 #This function accepts an OU in Distinguished Name format and verifies whether
 #the computer is currently a member of the provided OU.
@@ -87,6 +87,14 @@ function Detect-OU
 #It executes the BitLocker encryption process on the C: drive.
 function Apply-BDE 
 	{
+		IF ($VerifyOU)
+			{
+				IF (!verifiedOU)
+					{
+						Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
+						return
+					}
+			}
 		#BDE Syntax variables
 		#$bdeSyntaxBase = "Enable-BitLocker -MountPoint 'C:'"
 		$bdeMountPoint = 'C:'
@@ -94,11 +102,11 @@ function Apply-BDE
 		#$bde
 		#If we successfully verifiedOU, add the SilentlyContinue parameter to the first Enable-BitLocker command
 		#This is because the command errors out if GPO requires a RecoveryPassword
-		IF (!$verifiedOU)
-			{
-				Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
-				return
-			} 
+		#IF (!$verifiedOU)
+		#	{
+		#		Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
+		#		return
+		#	} 
 		#Here lies a bug, if a recovery password is not required but the SkipHardwareTest paramater is true, SkipHardwareTest will not be honored
 		#IF ($NoHardwareTest)
 		#	{
