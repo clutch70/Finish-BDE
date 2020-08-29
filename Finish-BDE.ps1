@@ -106,7 +106,7 @@ function Apply-BDE
 		#If the TPM exists use NewPIN and TPMandPinProtector parameters
 		IF ($tpmStatus)
 		{
-			$bdeSyntaxBase = $bdeSyntaxBase + " -TPMandPinProtector"
+			#$bdeSyntaxBase = $bdeSyntaxBase + " -TPMandPinProtector"
 			#Convert NewPIN to a SecureString
 			$secureString = ConvertTo-SecureString $NewPIN -AsPlainText -Force
 			#$bdeSyntaxBase = $bdeSyntaxBase + " -Pin $secureString"
@@ -116,7 +116,7 @@ function Apply-BDE
 		} 
 		ELSE
 			{
-			$bdeSyntaxBase = $bdeSyntaxBase + " -PasswordProtector"
+			#$bdeSyntaxBase = $bdeSyntaxBase + " -PasswordProtector"
 			#Convert NewPassword to a SecureString
 			$secureString = ConvertTo-SecureString $NewPassword -AsPlainText -Force
 			#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
