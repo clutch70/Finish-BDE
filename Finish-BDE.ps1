@@ -21,7 +21,7 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest)
+param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false)
 
 #We need to set $verifiedOU to something so it can be set as a failure flag is something goes wrong
 $verifiedOU = 1
@@ -53,6 +53,7 @@ function Detect-OU
 				} CATCH
 					{
 						Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
+						$verifiedOU = $false
 						return
 						
 					}
@@ -76,6 +77,7 @@ function Detect-OU
 					$verifiedOU = $false
 					#Write-Output "VerifyOU is $VerifyOU"
 					#Write-Output "OU is $OU"
+					return
 
 				}
 	}
@@ -122,7 +124,14 @@ function Apply-BDE
 			#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
 			#Write-Output "NewPassword is $NewPassword."
 			#Enable-BitLocker $bdeSyntaxBase -Password $secureString
-			Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
+			IF ($RmmTool)
+				{
+					Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString | out-null
+				}
+				ELSE
+				{
+					Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
+				}
 			}
 		IF ($CreateRecoveryPassword)
 			{
@@ -130,12 +139,26 @@ function Apply-BDE
 				#If NoHardwareTest is true add the SkipHardwareTest paramater
 				IF ($NoHardwareTest)
 					{
-						Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest
-						return
+						IF ($RmmTool)
+							{
+								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest | out-null
+								return
+							}
+							ELSE
+							{
+								Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest
+							}
 					}
 				
 				#Write-Output "bdeSyntaxRecoveryBase is $bdeSyntaxRecoveryBase"
-				Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
+				IF ($RmmTool)
+					{
+						Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector | out-null
+					}
+					ELSE
+					{
+						Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
+					}
 			}
 	}
 
@@ -146,10 +169,17 @@ $detectedPIN=($serial.Substring($serial.Length - 6)).ToUpper()
 #IF NewPIN not provided detect and set it.
 IF (!$NewPIN)
 	{
-		Write-Output "NewPIN not provided... parsing first PIN from serial number..."
-		Write-Output "Detected Serial Number is $serial."
+		IF ($Verbose)
+			{
+				Write-Output "NewPIN not provided... parsing first PIN from serial number..."
+				Write-Output "Detected Serial Number is $serial."
+			}
 		$NewPIN = $detectedPIN
-		Write-Output "NewPIN is $NewPIN"
+		
+		IF ($Verbose)
+			{
+				Write-Output "NewPIN is $NewPIN"
+			}
 	}
 
 
@@ -182,20 +212,32 @@ IF ($tpmStatus)
 	#If TPM is not present
 	ELSE
 		{
-			Write-Output "No TPM detected... verifying NewPassword..."
+			IF ($Verbose)
+				{
+					Write-Output "No TPM detected... verifying NewPassword..."
+				}
 			#If NewPassword doesn't exist, detect the NewPIN value. If longer than 5 chars, prepend CompanyIdentifier.
 			IF (!$NewPassword)
 				{
 					#Just use NewPIN if its long enough
-					Write-Output "NewPassword not provided..."
+					IF ($Verbose)
+						{
+							Write-Output "NewPassword not provided..."
+						}
 					IF (($NewPIN).length -ge 8)
 						{
-							Write-Output "NewPIN is long enough to take the place of NewPassword... setting them equal."
+							IF ($Verbose)
+								{
+									Write-Output "NewPIN is long enough to take the place of NewPassword... setting them equal."
+								}
 							$NewPassword = $NewPIN
 						}
 						ELSE
 							{
-							Write-Output "NewPIN is not long enough to function as NewPassword..."
+							IF ($Verbose)
+								{
+									Write-Output "NewPIN is not long enough to function as NewPassword..."
+								}
 							IF ($CompanyIdentifier)
 								{
 									$CompanyIdentifier = $CompanyIdentifier.toUpper()
@@ -204,12 +246,16 @@ IF ($tpmStatus)
 									#Check that NewPassword is at least 8 chars
 									IF (($NewPassword).length -ge 8)
 										{
-											Write-Output "Successfully created NewPassword!!!"
-											Write-Output "NewPassword is $NewPassword."
+											IF ($Verbose)
+												{
+													Write-Output "Successfully created NewPassword!!!"
+													Write-Output "NewPassword is $NewPassword."
+												}
 										}
 										ELSE
 										{
 											Write-Output "NewPassword is not long enough... Value is $NewPassword."
+											exit
 										}
 								}
 								ELSE
@@ -223,3 +269,18 @@ IF ($tpmStatus)
 #OU detection
 Detect-OU($VerifyOU)
 Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest)
+
+#Cleanup and output steps
+
+#Show us the final credential if required
+IF ($displayCredential)
+	{
+		IF ($tpmStatus)
+			{
+				Write-Output "$NewPIN"
+			}
+			ELSE
+				{
+					Write-Output "$NewPassword"
+				}
+	}
