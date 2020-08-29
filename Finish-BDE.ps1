@@ -21,7 +21,7 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $testing=$false)
+param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $testing=$false, $DisplayCredential)
 
 #Er maybe not We need to set $verifiedOU to something so it can be set as a failure flag is something goes wrong
 #$verifiedOU = $false
@@ -177,7 +177,7 @@ function Apply-BDE
 				}
 				ELSE
 				{
-					IF (!Testing)
+					IF ($Testing -eq $false)
 						{
 							Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
 						}
@@ -191,7 +191,7 @@ function Apply-BDE
 			{
 				#$bdeSyntaxRecoveryBase = "Enable-BitLocker -MountPoint C: -RecoveryPassword"
 				#If NoHardwareTest is true add the SkipHardwareTest paramater
-				IF ($NoHardwareTest)
+				IF ($NoHardwareTest -eq $true)
 					{
 						IF ($RmmTool -eq $true)
 							{
@@ -356,7 +356,7 @@ Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$N
 #Cleanup and output steps
 
 #Show us the final credential if required
-IF ($displayCredential)
+IF ($displayCredential -eq $true)
 	{
 		IF ($tpmStatus)
 			{
