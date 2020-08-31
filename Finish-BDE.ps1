@@ -9,7 +9,7 @@
 ########################################################################
 #
 #	This script makes several assumptions.
-#		1. The password or PIN must be 8 or 6 characters respectively.
+#		1. The password or PIN must be at least 8 or 6 characters respectively.
 #		2. If NewPIN is not specified, you want to use the last 6 of the 
 #			serial number (all caps) as	the first PIN.
 #		3. If NewPassword is not specified, you want to use a provided 
@@ -21,74 +21,76 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $VerifyOU, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $testing=$false, $DisplayCredential)
+param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $Testing=$False, $DisplayCredential)
 
 #This function accepts an OU in Distinguished Name format and verifies whether
-#the computer is currently a member of the provided OU.
-function Detect-OU 
-	{
+#the computer is currently a member of the provided OU, if so returns true.
+#THIS FUNCTION DEPRACATED, BURDEN OF VERIFYING OU ASSIGNED TO RMM TOOL
+#unction Detect-OU 
+#	{
 
-	IF (!$VerifyOU)
-		{
-			return
-		}
+#	IF (!$VerifyOU)
+#		{
+#			return
+#		}
 
 	#Determine if the AD Module needs installing
-	$modules = Get-Module -Name ActiveDirectory
+	#$modules = Get-Module -Name ActiveDirectory
 
 	#If not exist install it
-		IF (!$modules)
-			{
-				Import-Module -Name ActiveDirectory -Cmdlet Get-ADComputer, Get-ADOrganizationalUnit;
-			}
-			
-			#Get the OU we're currently in
-			#TODO make a try catch here in case we're not connected to the domain
-			TRY
-				{
-					$Computer = Get-ADComputer $env:computername -ErrorAction Stop
-				} CATCH
-					{
-						Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
-						$verifiedOU = $false
-						return($verifiedOU)
+	#	IF (!$modules)
+		#	{
+		#		Import-Module -Name ActiveDirectory -Cmdlet Get-ADComputer, Get-ADOrganizationalUnit;
+		#	}
+		#	
+		#	#Get the OU we're currently in
+		#	TRY
+			#	{
+			#		$Computer = Get-ADComputer $env:computername -ErrorAction Stop
+			#	} CATCH
+			#		{
+			#			Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
+			#			$verifiedOU = $false
+			#			return($verifiedOU)
 						
-					}
+			#		}
 			#Get the current OU of the AD computer
-			$OU = $Computer.DistinguishedName.SubString($Computer.DistinguishedName.IndexOf('OU='));
+			#$OU = $Computer.DistinguishedName.SubString($Computer.DistinguishedName.IndexOf('OU='));
 			
+			#Better way of getting the OU, doesn't require the AD module
+#			$OU = (([adsisearcher]"(&(name=$env:computername)(objectClass=computer))").findall().path).substring(7)
 			#Test if the OU we're in at least a child of VerifyOU
-			IF ($OU -match $VerifyOU)
-				{
-					IF ($Verbose -eq $true)
-						{
-							Write-Output "Asset is in a child of the provided OU."
-							Write-Output "Updating Group Policy..."
-						}
-					IF ($Testing -eq $false)
-						{
-							gpupdate
-						}
-						ELSE
-						{
-							Write-Output "Would execute gpupdate here, but that takes forever and the testing flag is set."
-						}
-					$verifiedOU = $true
-					return($verifiedOU)
+#			IF ($OU -match $VerifyOU)
+#				{
+#					IF ($Verbose -eq $true)
+#						{
+#							Write-Output "Asset is in a child of the provided OU."
+#							Write-Output "Updating Group Policy..."
+#						}
+#					IF ($Testing -eq $false)
+#						{
+#							gpupdate
+#						}
+#						ELSE
+#						{
+#							Write-Output "Would execute gpupdate here, but that takes forever and the testing flag is set."
+#						}
+#					$verifiedOU = $true
+#					return($verifiedOU)
 					
 					#Write-Output "VerifyOU is $VerifyOU"
 					#Write-Output "OU is $OU"
-				}
-				ELSE
-				{
-					Write-Output "Asset is NOT in a child of the provided OU!!! Exiting..."
-					$verifiedOU = $false
+#				}
+#				ELSE
+#				{
+#					Write-Output "Asset is NOT in a child of the provided OU!!! Exiting..."
+#					$verifiedOU = $false
 					#Write-Output "VerifyOU is $VerifyOU"
 					#Write-Output "OU is $OU"
-					return($verifiedOU)
+#					return($verifiedOU)
 
-				}
-	}
+#				}
+#	}
 	
 
 #This function should be called after all prerequisites have been completed.
@@ -96,11 +98,11 @@ function Detect-OU
 function Apply-BDE 
 	{
 		
-		IF ($verifiedOU -eq $false)
-			{
-				Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
-				return
-			}
+		#IF ($verifiedOU -eq $false)
+		#	{
+		#		Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
+		#		return
+		#	}
 			
 		
 		
@@ -338,17 +340,22 @@ IF ($tpmStatus)
 							}
 				}
 		}
-#OU detection
-$verifiedOU = Detect-OU($VerifyOU)
+#OU detection, returns true if a workstation is a member of a specified parent OU
+#$verifiedOU = Detect-OU($VerifyOU)
 
-IF (($VerifyOU) -and ($verifiedOU -eq $true))
-	{
-		Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing)
-	}
-IF (!$VerifyOU)
-	{
-		Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing)
-	}
+Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing)
+
+#If VerifyOU was specified and verifiedOU is true, apply BDE
+#IF (($VerifyOU) -and ($verifiedOU -eq $true))
+#	{
+#		
+#	}
+
+#If VerifyOU was not specified, apply BDE
+#IF (!$VerifyOU)
+#	{
+#		Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing)
+#	}
 
 
 #Cleanup and output steps
