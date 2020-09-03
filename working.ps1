@@ -229,7 +229,7 @@ IF ($tpmStatus)
 #OU detection, returns true if a workstation is a member of a specified parent OU
 #$verifiedOU = Detect-OU($VerifyOU)
 
-Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing,$TPMProtectorOnly)
+Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing,$TPMProtectorOnly,$BDEEncryptionMethod)
 
 #If VerifyOU was specified and verifiedOU is true, apply BDE
 #IF (($VerifyOU) -and ($verifiedOU -eq $true))
