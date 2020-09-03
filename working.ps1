@@ -23,7 +23,7 @@
 
 param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $Testing=$False, $DisplayCredential, $TPMProtectorOnly=$False, $BDEEncryptionMethod="AES256")
 
-$NewPIN = ConvertTo-SecureString $NewPIN -AsSecureString -Force
+$securePIN = ConvertTo-SecureString $NewPIN -AsSecureString -Force
 #This function accepts an OU in Distinguished Name format and verifies whether
 #the computer is currently a member of the provided OU, if so returns true.
 #THIS FUNCTION DEPRACATED, BURDEN OF VERIFYING OU ASSIGNED TO RMM TOOL
@@ -61,7 +61,7 @@ function Apply-BDE
 		
 		$tpmAndPinParams = @{
 				
-				PIN = $NewPIN
+				PIN = $securePIN
 				TPMAndPinProtector = $True
 			}
 		
