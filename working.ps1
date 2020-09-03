@@ -106,11 +106,16 @@ function Apply-BDE
 
 		IF ($Verbose -eq $True)
 			{
-				Write-Output "Displaying bdeParams"
-				$bdeParams
-				
-				Write-Output "Displaying bdeRecoveryParams"
-				$bdeRecoveryParams
+				IF ($tpmStatus)
+					{
+						Write-Output "Displaying bdeParams"
+						$bdeParams
+					}
+					ELSE
+					{
+						Write-Output "Displaying bdeRecoveryParams"
+						$bdeRecoveryParams					
+					}
 			}
 		
 		IF ($CreateRecoveryPassword -eq $true)
@@ -118,7 +123,7 @@ function Apply-BDE
 				$recoveryPwExecute = Add-BitLockerKeyProtector @bdeRecoveryParams
 			}
 		
-		Enable-BitLocker @bdeParams
+		$bdeExecute = Enable-BitLocker @bdeParams
 
 	}
 
