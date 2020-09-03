@@ -21,253 +21,110 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $Testing=$False, $DisplayCredential, $TPMProtectorOnly=$False)
+param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $Testing=$False, $DisplayCredential, $TPMProtectorOnly=$False, $BDEEncryptionMethod="AES256")
 
+$securePIN = ConvertTo-SecureString $NewPIN -AsPlainText -Force
 #This function accepts an OU in Distinguished Name format and verifies whether
 #the computer is currently a member of the provided OU, if so returns true.
 #THIS FUNCTION DEPRACATED, BURDEN OF VERIFYING OU ASSIGNED TO RMM TOOL
-#unction Detect-OU 
-#	{
-
-#	IF (!$VerifyOU)
-#		{
-#			return
-#		}
-
-	#Determine if the AD Module needs installing
-	#$modules = Get-Module -Name ActiveDirectory
-
-	#If not exist install it
-	#	IF (!$modules)
-		#	{
-		#		Import-Module -Name ActiveDirectory -Cmdlet Get-ADComputer, Get-ADOrganizationalUnit;
-		#	}
-		#	
-		#	#Get the OU we're currently in
-		#	TRY
-			#	{
-			#		$Computer = Get-ADComputer $env:computername -ErrorAction Stop
-			#	} CATCH
-			#		{
-			#			Write-Output "VerifyOU was provided but cannot get computer information from AD!!!"
-			#			$verifiedOU = $false
-			#			return($verifiedOU)
-						
-			#		}
-			#Get the current OU of the AD computer
-			#$OU = $Computer.DistinguishedName.SubString($Computer.DistinguishedName.IndexOf('OU='));
-			
-			#Better way of getting the OU, doesn't require the AD module
-#			$OU = (([adsisearcher]"(&(name=$env:computername)(objectClass=computer))").findall().path).substring(7)
-			#Test if the OU we're in at least a child of VerifyOU
-#			IF ($OU -match $VerifyOU)
-#				{
-#					IF ($Verbose -eq $true)
-#						{
-#							Write-Output "Asset is in a child of the provided OU."
-#							Write-Output "Updating Group Policy..."
-#						}
-#					IF ($Testing -eq $false)
-#						{
-#							gpupdate
-#						}
-#						ELSE
-#						{
-#							Write-Output "Would execute gpupdate here, but that takes forever and the testing flag is set."
-#						}
-#					$verifiedOU = $true
-#					return($verifiedOU)
-					
-					#Write-Output "VerifyOU is $VerifyOU"
-					#Write-Output "OU is $OU"
-#				}
-#				ELSE
-#				{
-#					Write-Output "Asset is NOT in a child of the provided OU!!! Exiting..."
-#					$verifiedOU = $false
-					#Write-Output "VerifyOU is $VerifyOU"
-					#Write-Output "OU is $OU"
-#					return($verifiedOU)
-
-#				}
-#	}
 	
 
 #This function should be called after all prerequisites have been completed.
 #It executes the BitLocker encryption process on the C: drive.
 function Apply-BDE 
 	{
+		$bdeParams = @{
+				
+				MountPoint = "C:"
+				EncryptionMethod = $BDEEncryptionMethod
+				
+			}
 		
-		#IF ($verifiedOU -eq $false)
-		#	{
-		#		Write-Output "Aborting Apply-BDE funciton because verifiedOU was set to false."
-		#		return
-		#	}
+		$bdeRecoveryParams = @{
 			
+				MountPoint = "C:"
+				RecoveryPasswordProtector = $true
+				
+			}
 		
+		$rmmToolParams = @{
+				
+				ErrorAction = "SilentlyContinue"
+				WarningAction = "SilentlyContinue"
+				
+			}
+		$noHardwareTestParams = @{
+				
+				SkipHardwareTest = $True
+			
+			}
 		
-		#If the TPM exists use NewPIN, TPMProtectorOnly, and TPMandPinProtector parameters
-		IF ($tpmStatus)
-		{
-			#Convert NewPIN to a SecureString
-			$secureString = ConvertTo-SecureString $NewPIN -AsPlainText -Force
-			#Write-Output "NewPIN is $NewPIN."
-			#If RmmTool is true, don't show console output from the BDE commands
-			IF ($RmmTool -eq $true)
-				{
-					#If tpmProtectorOnly was set to true, Enable-BDE with only the TPMProtector
-					IF ($tpmProtectorOnly -eq $true)
-						{
-							IF ($Testing -eq $false)
-								{
-									$bdeCommand = Enable-BitLocker -MountPoint "C:" -TPMProtector -ErrorAction SilentlyContinue
-								}
-								ELSE
-								{
-									Write-Output "Would execute a TPMProtector Enable-BitLocker command in RMM Mode here but the Testing flag is set."
-								}
-						}
-						ELSE
-						{
-							#Since tpmProtectorOnly wasn't set, Enable-BDE with TPMandPinProtector
-							IF ($Testing -eq $false)
-								{
-									$bdeCommand = Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector -ErrorAction SilentlyContinue
-								}
-								ELSE
-								{
-									Write-Output "Would execute a TPMandPinProtector Enable-BitLocker command in RMM Mode here but the Testing flag is set."
-								}
-						}
-						
-						
-					
-				}
-				#$RMMTool wasn't true, so show the output from the Enable-BDE commands to the console
-				ELSE
-				{
-					#If tpmProtectorOnly was set to true, Enable-BDE with only the TPMProtector
-					IF ($tpmProtectorOnly -eq $true)
-						{
-							IF ($Testing -eq $false)
-								{
-									$bdeCommand = Enable-BitLocker -MountPoint "C:" -TPMProtector
-								}
-								ELSE
-								{
-									Write-Output "Would execute a TPMProtector Enable-BitLocker command in normal mode here but the Testing flag is set."
-								}
-						}
-						ELSE
-						{
-							#Since tpmProtectorOnly wasn't set, Enable-BDE with TPMandPinProtector
-							IF ($Testing -eq $false)
-								{
-									$bdeCommand = Enable-BitLocker -Pin $secureString -MountPoint "C:" -TPMandPinProtector
-								}
-								ELSE
-								{
-									Write-Output "Would execute a TPMandPinProtector Enable-BitLocker command here but the Testing flag is set."
-								}
-						}
-					
-					
-				}
-		} 
-		ELSE
+		$tpmAndPinParams = @{
+				
+				PIN = $securePIN
+				TPMAndPinProtector = $True
+			}
+		
+		$passwordProtectorsParams = @{
+				
+				PasswordProtector = $True
+				Password = $NewPassword
+			}
+		
+		IF ($RmmTool -eq $true)
 			{
-				#$bdeSyntaxBase = $bdeSyntaxBase + " -PasswordProtector"
-				#Convert NewPassword to a SecureString
-				$secureString = ConvertTo-SecureString $NewPassword -AsPlainText -Force
-				#Write-Output "bdeSyntaxBase is $bdeSyntaxBase"
-				#Write-Output "NewPassword is $NewPassword."
-				#$bdeCommand = Enable-BitLocker $bdeSyntaxBase -Password $secureString
-				IF ($RmmTool -eq $true)
+				$bdeParams = $bdeParams + $rmmToolParams
+				$bdeRecoveryParams = $bdeRecoveryParams + $rmmToolParams
+			}
+		
+		IF ($Testing -eq $true)
+			{
+				$bdeParams = $bdeParams + @{WhatIf = $true}
+				$bdeRecoveryParams = $bdeRecoveryParams + @{WhatIf = $true}
+			}
+		
+		IF ($NoHardwareTest -eq $True)
+			{
+				$bdeParams = $bdeParams + $noHardwareTestParams
+			}
+		
+		IF ($tpmStatus)
+			{
+				IF ($TPMProtectorOnly -eq $true)
 					{
-						IF ($Testing -eq $false)
-							{
-								$bdeCommand = Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | out-null
-							}
-							ELSE
-							{
-								Write-Output "Would execute a PasswordProtector Enable-BitLocker command in RMM Mode here but the Testing flag is set."
-							}
+						$bdeParams = $bdeParams + @{TPMProtector = $true}
 					}
 					ELSE
 					{
-						IF ($Testing -eq $false)
-							{
-								$bdeCommand = Enable-BitLocker -MountPoint "C:" -PasswordProtector -Password $secureString
-							}
-							ELSE
-							{
-								Write-Output "Would execute a PasswordProtector Enable-BitLocker command here but the Testing flag is set."
-							}
+						$bdeParams = $bdeParams + $tpmAndPinParams
 					}
 			}
+			ELSE
+			{
+				$bdeParams = $bdeParams + $passwordProtectorsParams
+			}
+
+		IF ($Verbose -eq $True)
+			{
+				IF ($tpmStatus)
+					{
+						Write-Output "Displaying bdeParams"
+						$bdeParams
+					}
+					ELSE
+					{
+						Write-Output "Displaying bdeRecoveryParams"
+						$bdeRecoveryParams					
+					}
+			}
+		
 		IF ($CreateRecoveryPassword -eq $true)
 			{
-				#If NoHardwareTest is true add the SkipHardwareTest paramater
-				IF ($NoHardwareTest -eq $true)
-					{
-
-						IF ($RmmTool -eq $true)
-							{
-								IF ($Testing -eq $false)
-									{
-										$bdeCommand = Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | out-null
-										return
-									}
-									ELSE
-									{
-										Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command in RMM Mode here, but the Testing flag is set."
-									}
-							}
-							ELSE
-							{
-								IF ($Testing -eq $false)
-									{
-										$bdeCommand = Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -SkipHardwareTest
-										return
-									}
-									ELSE
-									{
-										Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command here, but the Testing flag is set."
-									}
-							}
-					}
-					ELSE
-						{
-							IF ($RmmTool -eq $true)
-								{
-									IF ($Testing -eq $false)
-										{
-											$bdeCommand = Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | out-null
-											return
-										}
-										ELSE
-										{
-											Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command in RMM Mode here, but the Testing flag is set."
-										}
-								}
-								ELSE
-								{
-									IF ($Testing -eq $false)
-										{
-											$bdeCommand = Enable-BitLocker -MountPoint "C:" -RecoveryPasswordProtector
-											return
-										}
-										ELSE
-										{
-											Write-Output "Would execute a RecoveryPasswordProtector Enable-BitLocker command here, but the Testing flag is set."
-										}
-									
-								}
-								
-								
-						
-						}
+				$recoveryPwExecute = Add-BitLockerKeyProtector @bdeRecoveryParams
 			}
+		
+		$bdeExecute = Enable-BitLocker @bdeParams
+
 	}
 
 #Get the serial number
@@ -377,7 +234,7 @@ IF ($tpmStatus)
 #OU detection, returns true if a workstation is a member of a specified parent OU
 #$verifiedOU = Detect-OU($VerifyOU)
 
-Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing,$TPMProtectorOnly)
+Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing,$TPMProtectorOnly,$BDEEncryptionMethod)
 
 #If VerifyOU was specified and verifiedOU is true, apply BDE
 #IF (($VerifyOU) -and ($verifiedOU -eq $true))
