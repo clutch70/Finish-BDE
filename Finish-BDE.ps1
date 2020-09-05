@@ -45,9 +45,9 @@ function Apply-BDE
 				
 				MountPoint = "C:"
 				EncryptionMethod = $BDEEncryptionMethod
-				ErrorVariable = $bdeTpmErrors
-				WarningVariable = $bdeTpmWarnings
-				InformationVariable = $bdeTpmInfo
+				ErrorVariable = bdeTpmErrors
+				WarningVariable = bdeTpmWarnings
+				InformationVariable = bdeTpmInfo
 				
 			}
 		
@@ -55,9 +55,9 @@ function Apply-BDE
 			
 				MountPoint = "C:"
 				RecoveryPasswordProtector = $true
-				ErrorVariable = $bdeRecoveryErrors
-				WarningVariable = $bdeRecoveryWarnings
-				InformationVariable = $bdeRecoveryInfo
+				ErrorVariable = bdeRecoveryErrors
+				WarningVariable = bdeRecoveryWarnings
+				InformationVariable = bdeRecoveryInfo
 				
 			}
 		
