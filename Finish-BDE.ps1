@@ -23,15 +23,15 @@
 
 param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $Testing=$False, $DisplayCredential, $TPMProtectorOnly=$False, $BDEEncryptionMethod="AES256")
 
-IF ($NewPIN)
-	{
-		$securePIN = ConvertTo-SecureString $NewPIN -AsPlainText -Force
-	}
+#IF ($NewPIN)
+#	{
+#		$securePIN = ConvertTo-SecureString $NewPIN -AsPlainText -Force
+#	}
 	
-IF ($NewPassword)
-	{
-		$securePassword = ConvertTo-SecureString $NewPassword -AsPlainText -Force
-	}
+#IF ($NewPassword)
+#	{
+#		$securePassword = ConvertTo-SecureString $NewPassword -AsPlainText -Force
+#	}
 #This function accepts an OU in Distinguished Name format and verifies whether
 #the computer is currently a member of the provided OU, if so returns true.
 #THIS FUNCTION DEPRACATED, BURDEN OF VERIFYING OU ASSIGNED TO RMM TOOL
@@ -180,7 +180,7 @@ IF ($tpmStatus)
 					exit
 				}
 		
-		
+		$securePIN = ConvertTo-SecureString $NewPIN -AsPlainText -Force
 	}
 	#If TPM is not present
 	ELSE
@@ -238,11 +238,12 @@ IF ($tpmStatus)
 								}
 							}
 				}
+			$securePassword = ConvertTo-SecureString $NewPassword -AsPlainText -Force
 		}
 #OU detection, returns true if a workstation is a member of a specified parent OU
 #$verifiedOU = Detect-OU($VerifyOU)
 
-Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing,$TPMProtectorOnly,$BDEEncryptionMethod)
+Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing,$TPMProtectorOnly,$BDEEncryptionMethod,$securePIN,$securePassword)
 
 #If VerifyOU was specified and verifiedOU is true, apply BDE
 #IF (($VerifyOU) -and ($verifiedOU -eq $true))
