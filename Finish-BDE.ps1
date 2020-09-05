@@ -146,7 +146,9 @@ function Apply-BDE
 			Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append
 			$bdeTpmInfo | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append
 			
+		Get-Date | out-file c:\windows\temp\Finish-BDE-params.txt
 		$bdeParams | out-file c:\windows\temp\Finish-BDE-params.txt
+		Get-Date | out-file c:\temp\Finish-BDE-recovery-params.txt
 		$bdeRecoveryParams | out-file c:\temp\Finish-BDE-recovery-params.txt
 	}
 
