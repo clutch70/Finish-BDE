@@ -145,6 +145,9 @@ function Apply-BDE
 			$bdeTpmWarnings | out-file c:\windows\temp\Finish-BDE-TPM-warnings.txt -append
 			Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append
 			$bdeTpmInfo | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append
+			
+		$bdeParams | out-file c:\windows\temp\Finish-BDE-params.txt
+		$bdeRecoveryParams | out-file c:\temp\Finish-BDE-recovery-params.txt
 	}
 
 #Get the serial number
