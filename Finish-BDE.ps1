@@ -21,7 +21,7 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, $NoHardwareTest, $RmmTool=$false, $Verbose=$false, $Testing=$False, $DisplayCredential, $TPMProtectorOnly=$False, $BDEEncryptionMethod="AES256")
+param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, [Switch]$NoHardwareTest, [Switch]$RmmTool, $Verbose=$false, [Switch]$Testing, [Switch]$DisplayCredential, [Switch]$TPMProtectorOnly, $BDEEncryptionMethod="AES256")
 
 #IF ($NewPIN)
 #	{
