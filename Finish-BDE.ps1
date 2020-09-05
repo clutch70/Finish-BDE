@@ -21,7 +21,7 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, [Switch]$NoHardwareTest, [Switch]$RmmTool, $Verbose=$false, [Switch]$Testing, [Switch]$DisplayCredential, [Switch]$TPMProtectorOnly, $BDEEncryptionMethod="AES256")
+param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, [Switch]$NoHardwareTest, [Switch]$RmmTool, [Switch]$Verbose, [Switch]$Testing, [Switch]$DisplayCredential, [Switch]$TPMProtectorOnly, $BDEEncryptionMethod="AES256")
 
 #IF ($NewPIN)
 #	{
@@ -45,6 +45,9 @@ function Apply-BDE
 				
 				MountPoint = "C:"
 				EncryptionMethod = $BDEEncryptionMethod
+				ErrorVariable = $bdeTpmErrors
+				WarningVariable = $bdeTpmWarnings
+				InformationVariable = $bdeTpmInfo
 				
 			}
 		
@@ -52,6 +55,9 @@ function Apply-BDE
 			
 				MountPoint = "C:"
 				RecoveryPasswordProtector = $true
+				ErrorVariable = $bdeRecoveryErrors
+				WarningVariable = $bdeRecoveryWarnings
+				InformationVariable = $bdeRecoveryInfo
 				
 			}
 		
@@ -59,6 +65,7 @@ function Apply-BDE
 				
 				ErrorAction = "SilentlyContinue"
 				WarningAction = "SilentlyContinue"
+				
 				
 			}
 		$noHardwareTestParams = @{
@@ -114,25 +121,30 @@ function Apply-BDE
 
 		IF ($Verbose -eq $True)
 			{
-				IF ($tpmStatus)
-					{
-						Write-Output "Displaying bdeParams"
-						$bdeParams
-					}
-					ELSE
-					{
-						Write-Output "Displaying bdeRecoveryParams"
-						$bdeRecoveryParams					
-					}
+				Write-Output "Displaying bdeParams"
+				$bdeParams
+				Write-Output "Displaying bdeRecoveryParams"
+				$bdeRecoveryParams					
 			}
 		
 		IF ($CreateRecoveryPassword -eq $true)
 			{
 				$recoveryPwExecute = Add-BitLockerKeyProtector @bdeRecoveryParams
+				Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-errors.txt -append
+				$bdeRecoveryErrors | out-file c:\windows\temp\Finish-BDE-recovery-errors.txt -append
+				Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-warnings.txt -append
+				$bdeRecoveryWarnings | out-file c:\windows\temp\Finish-BDE-recovery-warnings.txt -append
+				Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-info.txt -append
+				$bdeRecoveryInfo | out-file c:\windows\temp\Finish-BDE-recovery-info.txt -append
 			}
 		
 		$bdeExecute = Enable-BitLocker @bdeParams
-
+			Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-errors.txt -append
+			$bdeTpmErrors | out-file c:\windows\temp\Finish-BDE-TPM-errors.txt -append
+			Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-warnings.txt -append
+			$bdeTpmWarnings | out-file c:\windows\temp\Finish-BDE-TPM-warnings.txt -append
+			Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append
+			$bdeTpmInfo | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append
 	}
 
 #Get the serial number
