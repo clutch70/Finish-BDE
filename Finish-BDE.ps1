@@ -118,6 +118,15 @@ function Apply-BDE
 			ELSE
 			{
 				$bdeParams = $bdeParams + $passwordProtectorsParams
+				#Since we detected that there's no TPM, the reg value to enable PasswordProtectors for OS drives needs to be validated
+				$keyExistsTest = Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" -ErrorVariable noTpmAllowedKeyError -ErrorAction SilentlyContinue
+
+					IF ($noTpmAllowedKeyError)
+						{
+							#Write-Output "Key Does not exist!!!"
+							$newKey = New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft" -Name FVE -Force
+						}
+					Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" -Name "EnableBDEWithNoTPM" -Value 1 -Force -ErrorAction SilentlyContinue
 			}
 
 		IF ($Verbose -eq $True)
