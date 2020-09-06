@@ -108,6 +108,7 @@ function Apply-BDE
 				IF ($TPMProtectorOnly -eq $true)
 					{
 						$bdeParams = $bdeParams + @{TPMProtector = $true}
+						$DisplayCredential = $false
 					}
 					ELSE
 					{
