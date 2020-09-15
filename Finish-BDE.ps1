@@ -49,6 +49,9 @@ function Apply-BDE
 							Write-Output "Key Does not exist!!! Creating..."
 						}
 					$newKey = New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft" -Name FVE -Force
+					#Since we didn't find the FVE key already, we won't be overwriting GP by setting these values. So go ahead and allow these Startup methods.
+					$allowTpmOnly = New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name UseTPM -Value 2
+					$allowTpmAndPin = New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name UseTPMPIN -Value 2
 				}
 		
 		$bdeParams = @{
