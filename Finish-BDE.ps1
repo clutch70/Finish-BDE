@@ -105,6 +105,12 @@ function Apply-BDE
 		
 		IF ($tpmStatus)
 			{
+				$enhancedPinKeyExistsTest = Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" -ErrorVariable enhancedPinKeyExistsError -ErrorAction SilentlyContinue
+				IF ($enhancedPinKeyExistsTest -ne 1)
+					{
+						Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" -Name "UseEnhancedPin" -Value 1 -Force -ErrorAction SilentlyContinue
+					}
+				
 				IF ($TPMProtectorOnly -eq $true)
 					{
 						$bdeParams = $bdeParams + @{TPMProtector = $true}
@@ -119,7 +125,7 @@ function Apply-BDE
 			{
 				$bdeParams = $bdeParams + $passwordProtectorsParams
 				#Since we detected that there's no TPM, the reg value to enable PasswordProtectors for OS drives needs to be validated
-				$keyExistsTest = Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" -ErrorVariable noTpmAllowedKeyError -ErrorAction SilentlyContinue
+				$pwAllowedKeyExistsTest = Get-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\FVE" -ErrorVariable noTpmAllowedKeyError -ErrorAction SilentlyContinue
 
 					IF ($noTpmAllowedKeyError)
 						{
