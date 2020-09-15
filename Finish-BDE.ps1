@@ -23,18 +23,6 @@
 
 param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, [Switch]$NoHardwareTest, [Switch]$RmmTool, [Switch]$Verbose, [Switch]$Testing, [Switch]$DisplayCredential, [Switch]$TPMProtectorOnly, $BDEEncryptionMethod="AES256")
 
-#IF ($NewPIN)
-#	{
-#		$securePIN = ConvertTo-SecureString $NewPIN -AsPlainText -Force
-#	}
-	
-#IF ($NewPassword)
-#	{
-#		$securePassword = ConvertTo-SecureString $NewPassword -AsPlainText -Force
-#	}
-#This function accepts an OU in Distinguished Name format and verifies whether
-#the computer is currently a member of the provided OU, if so returns true.
-#THIS FUNCTION DEPRACATED, BURDEN OF VERIFYING OU ASSIGNED TO RMM TOOL
 	
 
 #This function should be called after all prerequisites have been completed.
@@ -284,18 +272,6 @@ IF ($tpmStatus)
 #$verifiedOU = Detect-OU($VerifyOU)
 
 Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing,$TPMProtectorOnly,$BDEEncryptionMethod,$securePIN,$securePassword)
-
-#If VerifyOU was specified and verifiedOU is true, apply BDE
-#IF (($VerifyOU) -and ($verifiedOU -eq $true))
-#	{
-#		
-#	}
-
-#If VerifyOU was not specified, apply BDE
-#IF (!$VerifyOU)
-#	{
-#		Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing)
-#	}
 
 
 #Cleanup and output steps
