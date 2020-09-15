@@ -52,6 +52,7 @@ function Apply-BDE
 					#Since we didn't find the FVE key already, we won't be overwriting GP by setting these values. So go ahead and allow these Startup methods.
 					$allowTpmOnly = New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name UseTPM -Value 2
 					$allowTpmAndPin = New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name UseTPMPIN -Value 2
+					$allowAdvancedStartup = New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name UseAdvancedStartup -Value 1
 				}
 		
 		$bdeParams = @{
