@@ -200,7 +200,10 @@ IF ($tpmStatus)
 		#If NewPIN is at least 6 chars
 		IF ($NewPin.length -ge 6)
 			{
-				#Write-Output "PIN is at least 6 characters in length."
+				IF ($Verbose -eq $true)
+					{
+						Write-Output "PIN is at least 6 characters in length."
+					}
 			}
 			ELSE
 				{
