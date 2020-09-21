@@ -271,8 +271,6 @@ IF ($tpmStatus)
 				}
 			$securePassword = ConvertTo-SecureString $NewPassword -AsPlainText -Force
 		}
-#OU detection, returns true if a workstation is a member of a specified parent OU
-#$verifiedOU = Detect-OU($VerifyOU)
 
 Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing,$TPMProtectorOnly,$BDEEncryptionMethod,$securePIN,$securePassword)
 
