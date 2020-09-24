@@ -147,26 +147,26 @@ function Apply-BDE
 		IF ($CreateRecoveryPassword -eq $true)
 			{
 				$recoveryPwExecute = Add-BitLockerKeyProtector @bdeRecoveryParams
-				Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-errors.txt -append -ErrorAction SilentlyContinue
-				$bdeRecoveryErrors | out-file c:\windows\temp\Finish-BDE-recovery-errors.txt -append -ErrorAction SilentlyContinue
-				Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-warnings.txt -append -ErrorAction SilentlyContinue
-				$bdeRecoveryWarnings | out-file c:\windows\temp\Finish-BDE-recovery-warnings.txt -append -ErrorAction SilentlyContinue
-				Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-info.txt -append -ErrorAction SilentlyContinue
-				$bdeRecoveryInfo | out-file c:\windows\temp\Finish-BDE-recovery-info.txt -append -ErrorAction SilentlyContinue
+				$doThis = Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-errors.txt -append -ErrorAction SilentlyContinue
+				$doThis = $bdeRecoveryErrors | out-file c:\windows\temp\Finish-BDE-recovery-errors.txt -append -ErrorAction SilentlyContinue
+				$doThis = Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-warnings.txt -append -ErrorAction SilentlyContinue
+				$doThis = $bdeRecoveryWarnings | out-file c:\windows\temp\Finish-BDE-recovery-warnings.txt -append -ErrorAction SilentlyContinue
+				$doThis = Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-info.txt -append -ErrorAction SilentlyContinue
+				$doThis = $bdeRecoveryInfo | out-file c:\windows\temp\Finish-BDE-recovery-info.txt -append -ErrorAction SilentlyContinue
 			}
 		
 		$bdeExecute = Enable-BitLocker @bdeParams
-			Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-errors.txt -append -ErrorAction SilentlyContinue
-			$bdeTpmErrors | out-file c:\windows\temp\Finish-BDE-TPM-errors.txt -append -ErrorAction SilentlyContinue
-			Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-warnings.txt -append -ErrorAction SilentlyContinue
-			$bdeTpmWarnings | out-file c:\windows\temp\Finish-BDE-TPM-warnings.txt -append -ErrorAction SilentlyContinue
-			Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append -ErrorAction SilentlyContinue
-			$bdeTpmInfo | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append -ErrorAction SilentlyContinue
+			$doThis = Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-errors.txt -append -ErrorAction SilentlyContinue
+			$doThis = $bdeTpmErrors | out-file c:\windows\temp\Finish-BDE-TPM-errors.txt -append -ErrorAction SilentlyContinue
+			$doThis = Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-warnings.txt -append -ErrorAction SilentlyContinue
+			$doThis = $bdeTpmWarnings | out-file c:\windows\temp\Finish-BDE-TPM-warnings.txt -append -ErrorAction SilentlyContinue
+			$doThis = Get-Date | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append -ErrorAction SilentlyContinue
+			$doThis = $bdeTpmInfo | out-file c:\windows\temp\Finish-BDE-TPM-info.txt -append -ErrorAction SilentlyContinue
 			
-		Get-Date | out-file c:\windows\temp\Finish-BDE-params.txt -append -ErrorAction SilentlyContinue
-		$bdeParams | out-file c:\windows\temp\Finish-BDE-params.txt -append -ErrorAction SilentlyContinue
-		Get-Date | out-file c:\temp\Finish-BDE-recovery-params.txt -append -ErrorAction SilentlyContinue
-		$bdeRecoveryParams | out-file c:\temp\Finish-BDE-recovery-params.txt -append -ErrorAction SilentlyContinue
+		$doThis = Get-Date | out-file c:\windows\temp\Finish-BDE-params.txt -append -ErrorAction SilentlyContinue
+		$doThis = $bdeParams | out-file c:\windows\temp\Finish-BDE-params.txt -append -ErrorAction SilentlyContinue
+		$doThis = Get-Date | out-file c:\temp\Finish-BDE-recovery-params.txt -append -ErrorAction SilentlyContinue
+		$doThis = $bdeRecoveryParams | out-file c:\temp\Finish-BDE-recovery-params.txt -append -ErrorAction SilentlyContinue
 	}
 
 #Get the serial number
