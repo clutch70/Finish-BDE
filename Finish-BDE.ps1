@@ -140,8 +140,8 @@ function Apply-BDE
 					
 		IF ($SkipAdBackup -eq $true)
 			{
-				New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name OSRequireActiveDirectoryBackup -Value 0 -PropertyType DWord -Force
-				New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name OSActiveDirectoryBackup -Value 0 -PropertyType DWord -Force
+				$key = New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name OSRequireActiveDirectoryBackup -Value 0 -PropertyType DWord -Force
+				$key = New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name OSActiveDirectoryBackup -Value 0 -PropertyType DWord -Force
 			}
 		
 		IF ($CreateRecoveryPassword -eq $true)
