@@ -165,8 +165,8 @@ function Apply-BDE
 			
 		$doThis = Get-Date | out-file c:\windows\temp\Finish-BDE-params.txt -append -ErrorAction SilentlyContinue
 		$doThis = $bdeParams | out-file c:\windows\temp\Finish-BDE-params.txt -append -ErrorAction SilentlyContinue
-		$doThis = Get-Date | out-file c:\temp\Finish-BDE-recovery-params.txt -append -ErrorAction SilentlyContinue
-		$doThis = $bdeRecoveryParams | out-file c:\temp\Finish-BDE-recovery-params.txt -append -ErrorAction SilentlyContinue
+		$doThis = Get-Date | out-file c:\windows\temp\Finish-BDE-recovery-params.txt -append -ErrorAction SilentlyContinue
+		$doThis = $bdeRecoveryParams | out-file c:\windows\temp\Finish-BDE-recovery-params.txt -append -ErrorAction SilentlyContinue
 	}
 
 #Get the serial number
