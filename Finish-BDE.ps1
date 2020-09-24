@@ -21,7 +21,7 @@
 ########################################################################
 
 
-param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, [Switch]$NoHardwareTest, [Switch]$RmmTool, [Switch]$Verbose, [Switch]$Testing, [Switch]$DisplayCredential, [Switch]$TPMProtectorOnly, $BDEEncryptionMethod="AES256")
+param ($NewPIN, $NewPassword, $CreateRecoveryPassword=$true, $CompanyIdentifier, [Switch]$NoHardwareTest, [Switch]$RmmTool, [Switch]$Verbose, [Switch]$Testing, [Switch]$DisplayCredential, [Switch]$TPMProtectorOnly, $BDEEncryptionMethod="AES256", [Switch]$SkipAdBackup)
 
 	
 
@@ -68,8 +68,8 @@ function Apply-BDE
 				ErrorAction = "SilentlyContinue"
 				WarningAction = "SilentlyContinue"
 				
-				
 			}
+
 		$noHardwareTestParams = @{
 				
 				SkipHardwareTest = $True
@@ -136,6 +136,12 @@ function Apply-BDE
 				$bdeParams
 				Write-Output "Displaying bdeRecoveryParams"
 				$bdeRecoveryParams					
+			}
+					
+		IF ($SkipAdBackup -eq $true)
+			{
+				New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name OSRequireActiveDirectoryBackup -Value 0 -PropertyType DWord -Force
+				New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\FVE" -Name OSActiveDirectoryBackup -Value 0 -PropertyType DWord -Force
 			}
 		
 		IF ($CreateRecoveryPassword -eq $true)
@@ -271,6 +277,8 @@ IF ($tpmStatus)
 				}
 			$securePassword = ConvertTo-SecureString $NewPassword -AsPlainText -Force
 		}
+
+
 
 Apply-BDE($tpmStatus,$NewPIN,$NewPassword,$verifiedOU,$CreateRecoveryPassword,$NoHardwareTest,$Testing,$TPMProtectorOnly,$BDEEncryptionMethod,$securePIN,$securePassword)
 
